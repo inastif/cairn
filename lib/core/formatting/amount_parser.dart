@@ -7,13 +7,20 @@ import 'package:cairn/core/money/money.dart';
 /// Retourne `null` si la saisie est invalide ou a trop de décimales pour la
 /// devise (ex. des centimes en yens).
 Money? parseAmount(String input, Currency currency) {
-  var text = input.replaceAll(RegExp(r'[\s\u00A0\u202F\u2009]'), '').replaceAll('\u2212', '-');
+  var text = input
+      .replaceAll(RegExp(r'[\s\u00A0\u202F\u2009]'), '')
+      .replaceAll('\u2212', '-');
   if (text.isEmpty) {
     return null;
   }
   final negative = text.startsWith('-');
   if (negative || text.startsWith('+')) {
     text = text.substring(1);
+  }
+
+  // Un signe ou un separateur seul n'est pas un montant.
+  if (!text.contains(RegExp(r'\d'))) {
+    return null;
   }
 
   final lastComma = text.lastIndexOf(',');
@@ -23,7 +30,9 @@ Money? parseAmount(String input, Currency currency) {
   if (lastComma >= 0 && lastDot >= 0) {
     // Le dernier séparateur rencontré est le séparateur décimal.
     final decimalIndex = lastComma > lastDot ? lastComma : lastDot;
-    integerPart = text.substring(0, decimalIndex).replaceAll(RegExp('[.,]'), '');
+    integerPart = text
+        .substring(0, decimalIndex)
+        .replaceAll(RegExp('[.,]'), '');
     fractionPart = text.substring(decimalIndex + 1);
   } else if (lastComma >= 0 || lastDot >= 0) {
     final separator = lastComma >= 0 ? ',' : '.';

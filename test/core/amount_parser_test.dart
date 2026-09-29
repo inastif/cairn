@@ -6,7 +6,8 @@ void main() {
   final eur = Currency.eur;
   final jpy = Currency.of('JPY');
 
-  int? minor(String text, [Currency? currency]) => parseAmount(text, currency ?? eur)?.minorUnits;
+  int? minor(String text, [Currency? currency]) =>
+      parseAmount(text, currency ?? eur)?.minorUnits;
 
   test('formats français et anglais', () {
     expect(minor('1 234,56'), 123456);
@@ -28,6 +29,10 @@ void main() {
   test('refuse les saisies invalides ou trop précises', () {
     expect(minor(''), isNull);
     expect(minor('abc'), isNull);
+    expect(minor('-'), isNull, reason: 'signe seul');
+    expect(minor('+'), isNull);
+    expect(minor(','), isNull, reason: 'separateur seul');
+    expect(minor('.'), isNull);
     expect(minor('12,345'), isNull, reason: '3 décimales en euros');
     expect(minor('15,5', jpy), isNull, reason: 'le yen n’a pas de décimales');
     expect(minor('1-2'), isNull);
