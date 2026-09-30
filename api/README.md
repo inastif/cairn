@@ -62,6 +62,29 @@ npm test
 Les tests n'appellent jamais la vraie BCE : le client HTTP est remplacé par un
 faux.
 
+## Docker
+
+L'API est conteneurisée avec une image `node:22-alpine` (`api/Dockerfile`).
+Les dépendances sont installées avant la copie du code pour profiter du cache de
+Docker ; le conteneur tourne avec l'utilisateur `node` (jamais en root) et un
+`HEALTHCHECK` interroge `/health`.
+
+```bash
+# Depuis la racine du dépôt, avec docker compose
+docker compose up -d --build
+docker compose ps            # l'état passe à "healthy"
+curl http://localhost:3000/fx/latest
+docker compose down
+```
+
+Ou à la main :
+
+```bash
+docker build -t cairn-api:1.0 ./api
+docker run --name cairn-api -p 3000:3000 -d cairn-api:1.0
+docker inspect --format '{{.State.Health.Status}}' cairn-api
+```
+
 ## Structure
 
 ```
@@ -71,5 +94,6 @@ api/
 │   ├── app.js             Routes et validation des paramètres
 │   ├── rates-service.js   Cache, conversion, mode « stale »
 │   └── ecb.js             Téléchargement et lecture du XML de la BCE
-└── test/                  Tests (node:test)
+├── test/                  Tests (node:test)
+└── Dockerfile             Image de l'API
 ```

@@ -46,3 +46,27 @@ jobs:
         run: npm ci
       - name: Run tests
         run: npm test
+
+  api-image:
+    name: API image
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build -t cairn-api:ci ./api
+      - name: Start a container
+        run: docker run -d --name cairn-api -p 3000:3000 cairn-api:ci
+      - name: Wait until the container is healthy
+        run: |
+          for i in $(seq 1 30); do
+            status=$(docker inspect --format '{{.State.Health.Status}}' cairn-api)
+            echo "health: $status"
+            if [ "$status" = "healthy" ]; then exit 0; fi
+            sleep 2
+          done
+          docker logs cairn-api
+          exit 1
+      - name: Call /health from the host
+        run: curl --fail --silent http://localhost:3000/health

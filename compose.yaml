@@ -1,0 +1,15 @@
+# Lancer l'API : docker compose up -d --build
+# Arrêter       : docker compose down
+services:
+  api:
+    build: ./api
+    image: cairn-api:${TAG:-dev}
+    container_name: cairn-api
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "3000"
+    restart: unless-stopped
+    read_only: true          # le conteneur ne peut pas écrire dans son système de fichiers
+    security_opt:
+      - no-new-privileges:true
