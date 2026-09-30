@@ -71,11 +71,15 @@ Docker ; le conteneur tourne avec l'utilisateur `node` (jamais en root) et un
 
 ```bash
 # Depuis la racine du dépôt, avec docker compose
+copy .env.example .env       # Linux / macOS : cp .env.example .env
 docker compose up -d --build
-docker compose ps            # l'état passe à "healthy"
-curl http://localhost:3000/fx/latest
+docker compose ps            # l'API passe à "healthy", puis le proxy démarre
+curl http://localhost:8080/fx/latest
 docker compose down
 ```
+
+Compose lance deux services : l'API (visible seulement par les autres
+conteneurs) et un reverse proxy nginx qui l'expose sur le port 8080.
 
 Ou à la main :
 
@@ -96,4 +100,7 @@ api/
 │   └── ecb.js             Téléchargement et lecture du XML de la BCE
 ├── test/                  Tests (node:test)
 └── Dockerfile             Image de l'API
+
+compose.yaml               API + reverse proxy nginx (racine du dépôt)
+docker/nginx-api.conf      Configuration du reverse proxy
 ```
