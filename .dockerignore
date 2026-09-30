@@ -1,0 +1,6 @@
+# On n'envoie à Docker que ce dont l'image a besoin :
+# la configuration Nginx et le site compilé (build/web).
+# Aucun secret (env/*.json) ni code source n'entre dans l'image.
+*
+!docker/nginx.conf
+!build/web
